@@ -34,6 +34,7 @@ export class TreeSelect extends Component {
         emptyMessage: null,
         display: 'comma',
         metaKeySelection: true,
+        itemSize: null,
         valueTemplate: null,
         panelHeaderTemplate: null,
         panelFooterTemplate: null,
@@ -78,6 +79,7 @@ export class TreeSelect extends Component {
         emptyMessage: PropTypes.string,
         display: PropTypes.string,
         metaKeySelection: PropTypes.bool,
+        itemSize: PropTypes.number,
         valueTemplate: PropTypes.any,
         panelHeaderTemplate: PropTypes.any,
         panelFooterTemplate: PropTypes.any,
@@ -578,7 +580,7 @@ export class TreeSelect extends Component {
                 <Tree value={this.props.options} selectionMode={this.props.selectionMode} selectionKeys={this.props.value} metaKeySelection={this.props.metaKeySelection}
                     onSelectionChange={this.onSelectionChange} onSelect={this.onNodeSelect} onUnselect={this.onNodeUnselect}
                     expandedKeys={this.state.expandedKeys} onToggle={this.onNodeToggle}
-                    onExpand={this.props.onNodeExpand} onCollapse={this.props.onNodeCollapse}
+                    onExpand={this.props.onNodeExpand} onCollapse={this.props.onNodeCollapse} itemSize={this.props.itemSize} scrollHeight={this.props.scrollHeight}
                     filter={this.props.filter} filterValue={filterValue} filterBy={this.props.filterBy} filterMode={this.props.filterMode}
                     filterPlaceholder={this.props.filterPlaceholder} filterLocale={this.props.filterLocale} showHeader={false} onFilterValueChange={this.onFilterValueChange}>
                 </Tree>

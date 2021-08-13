@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { classNames } from '../utils/ClassNames';
 import ObjectUtils from '../utils/ObjectUtils';
 import { UITreeNode } from './UITreeNode';
+import { VirtualScroller } from '../virtualscroller/VirtualScroller';
 
 export class Tree extends Component {
 
@@ -20,6 +21,9 @@ export class Tree extends Component {
         className: null,
         contentStyle: null,
         contentClassName: null,
+        itemSize: null,
+        scrollHeight: null,
+        scrollWidth: null,
         metaKeySelection: true,
         propagateSelectionUp: true,
         propagateSelectionDown: true,
@@ -61,6 +65,9 @@ export class Tree extends Component {
         className: PropTypes.string,
         contentStyle: PropTypes.object,
         contentClassName: PropTypes.string,
+        itemSize: PropTypes.number,
+        scrollHeight: PropTypes.string,
+        scrollWidth: PropTypes.string,
         metaKeySelection: PropTypes.bool,
         propagateSelectionUp: PropTypes.bool,
         propagateSelectionDown: PropTypes.bool,
@@ -402,27 +409,51 @@ export class Tree extends Component {
         );
     }
 
-    renderRootChildren() {
+    getRootChildren() {
         if (this.props.filter) {
             this.filterChanged = true;
             this._filter();
         }
 
-        const value = this.getRootNode();
+        return this.getRootNode();
+    }
+
+    contentTemplate = (options) => {
+        const contentClass = classNames('p-tree-container', options.className);
+        const containerClass = classNames('p-tree', this.props.contentClassName, {
+            'p-tree-selectable': this.props.selectionMode,
+        });
+
         return (
-            value.map((node, index) => this.renderRootChild(node, index, (index === value.length - 1)))
+            <div className={containerClass}>
+                <ul ref={options.ref} className={contentClass} role="tree" aria-label={this.props.ariaLabel} aria-labelledby={this.props.ariaLabelledBy} style={this.props.contentStyle}>
+                    {options.children}
+                </ul>
+            </div>
+        );
+    }
+
+    itemTemplate = (node, { index, last }) => {
+        node.style = { height: `${this.props.itemSize}px` };
+        return (
+            <UITreeNode key={node.key || node.label} node={node} index={index} last={last} path={String(index)} disabled={this.props.disabled} selectionMode={this.props.selectionMode}
+                selectionKeys={this.props.selectionKeys} onSelectionChange={this.props.onSelectionChange} metaKeySelection={this.props.metaKeySelection}
+                contextMenuSelectionKey={this.props.contextMenuSelectionKey} onContextMenuSelectionChange={this.props.onContextMenuSelectionChange} onContextMenu={this.props.onContextMenu}
+                propagateSelectionDown={this.props.propagateSelectionDown} propagateSelectionUp={this.props.propagateSelectionUp}
+                onExpand={this.props.onExpand} onCollapse={this.props.onCollapse} onSelect={this.props.onSelect} onUnselect={this.props.onUnselect}
+                expandedKeys={this.getExpandedKeys()} onToggle={this.onToggle} nodeTemplate={this.props.nodeTemplate} togglerTemplate={this.props.togglerTemplate} isNodeLeaf={this.isNodeLeaf}
+                dragdropScope={this.props.dragdropScope} onDragStart={this.onDragStart} onDragEnd={this.onDragEnd} onDrop={this.onDrop} onDropPoint={this.onDropPoint}
+                onNodeClick={this.props.onNodeClick} onNodeDoubleClick={this.props.onNodeDoubleClick} />
         );
     }
 
     renderModel() {
         if (this.props.value) {
-            const rootNodes = this.renderRootChildren();
-            let contentClass = classNames('p-tree-container', this.props.contentClassName);
+            const items = this.getRootChildren();
 
             return (
-                <ul className={contentClass} role="tree" aria-label={this.props.ariaLabel} aria-labelledby={this.props.ariaLabelledBy} style={this.props.contentStyle}>
-                    {rootNodes}
-                </ul>
+                <VirtualScroller items={items} itemSize={this.props.itemSize} itemTemplate={this.itemTemplate} contentTemplate={this.contentTemplate}
+                    scrollHeight={this.props.scrollHeight} scrollWidth={this.props.scrollWidth}/>
             );
         }
 
@@ -503,8 +534,7 @@ export class Tree extends Component {
     }
 
     render() {
-        const className = classNames('p-tree p-component', this.props.className, {
-            'p-tree-selectable': this.props.selectionMode,
+        const className = classNames('p-component', this.props.className, {
             'p-tree-loading': this.props.loading,
             'p-disabled': this.props.disabled
         });
