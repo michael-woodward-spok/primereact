@@ -434,7 +434,6 @@ export class Tree extends Component {
     }
 
     itemTemplate = (node, { index, last }) => {
-        node.style = { height: `${this.props.itemSize}px` };
         return (
             <UITreeNode key={node.key || node.label} node={node} index={index} last={last} path={String(index)} disabled={this.props.disabled} selectionMode={this.props.selectionMode}
                 selectionKeys={this.props.selectionKeys} onSelectionChange={this.props.onSelectionChange} metaKeySelection={this.props.metaKeySelection}
